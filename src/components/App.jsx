@@ -1,29 +1,47 @@
-import  userData  from 'data/user.json';
-import statisticsData from 'data/data.json';
-import friendsData from 'data/friends.json';
-import transactionData from 'data/transactions.json';
-import { ThemeProvider } from 'styled-components';
-import { theme } from './utils/Theme.styled';
-import { Profile } from 'components/Profile/Profile';
-import { Statistics } from 'components/Statistics/Statistics';
-import { FriendList } from 'components/FriendList/FriendList';
-import { TransactionHistory } from 'components/TransactionHistory/TransactionHistory';
+import { GlobalStyles } from 'components/GlobalStyles';
+import { Component } from 'react';
+import { SearchBar } from './SearchBar/SearchBar';
+import { ImageGallery } from './ImageGallery/ImageGallery';
 
-export const App = () => {
-  return (
-    <ThemeProvider theme={theme}>
-      <Profile
-          username={userData.username}
-          tag={userData.tag}
-          location={userData.location}
-          avatar={userData.avatar}
-          stats={userData.stats}
-      />
+export class App extends Component {
+  state = {
+    searchQuery: '',
+    currentPage: 1,
+  };
 
-      <Statistics title="Upload stats" stats={statisticsData} />
-      <Statistics stats={statisticsData} />
-      <FriendList friends={friendsData} />
-      <TransactionHistory items={transactionData} />
-    </ThemeProvider>
-  );
-};
+  onSearchSubmit = formSearchQuery => {
+    const formatedSearchQuery = formSearchQuery.trim().toLowerCase();
+
+    if (!formatedSearchQuery || this.state.searchQuery === formatedSearchQuery)
+      return;
+
+    this.setState({
+      searchQuery: formatedSearchQuery,
+      currentPage: 1,
+    });
+  };
+
+  onLoadMore = () => {
+    this.setState(prevState => ({
+      currentPage: prevState.currentPage + 1,
+    }));
+  };
+
+  render() {
+    const { searchQuery, currentPage } = this.state;
+
+    return (
+      <>
+        <GlobalStyles />
+        <SearchBar onSubmit={this.onSearchSubmit} />
+        <main>
+          <ImageGallery
+            searchQuery={searchQuery}
+            currentPage={currentPage}
+            onLoadMore={this.onLoadMore}
+          />
+        </main>
+      </>
+    );
+  }
+}
